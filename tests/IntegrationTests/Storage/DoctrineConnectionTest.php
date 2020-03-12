@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SymfonyCasts\MessengerMonitorBundle\Tests\IntegrationTests\Storage;
 
 use Doctrine\DBAL\Connection;
+use Symfony\Bridge\PhpUnit\ClockMock;
 use SymfonyCasts\MessengerMonitorBundle\Statistics\MetricsPerMessageType;
 use SymfonyCasts\MessengerMonitorBundle\Statistics\Statistics;
 use SymfonyCasts\MessengerMonitorBundle\Storage\Doctrine\StoredMessage;
@@ -16,7 +17,7 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
     public function testSaveAndLoadMessage(): void
     {
         $this->doctrineConnection->saveMessage(
-            new StoredMessage('message_uid', TestableMessage::class, $dispatchedAt = (new \DateTimeImmutable())->setTime(0, 0, 0))
+            new StoredMessage('message_uid', TestableMessage::class, $dispatchedAt = (new \DateTimeImmutable())->setTime(0, 0, 0, 1000))
         );
 
         $storedMessage = $this->doctrineConnection->findMessage('message_uid');
@@ -35,8 +36,11 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
 
     public function testUpdateMessage(): void
     {
-        $this->doctrineConnection->saveMessage($storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable()));
-        $storedMessage->setReceivedAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
+        ClockMock::register(StoredMessage::class);
+        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:01.123'))->format('U.u'));
+
+        $this->doctrineConnection->saveMessage($storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.123')));
+        $storedMessage->updateWaitingTime();
         $storedMessage->setHandledAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
         $storedMessage->setFailedAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
         $storedMessage->setReceiverName('receiver_name');
@@ -45,8 +49,8 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
         $storedMessageLoadedFromDatabase = $this->doctrineConnection->findMessage('message_uid');
 
         $this->assertSame(
-            $storedMessage->getReceivedAt()->format('Y-m-d H:i:s'),
-            $storedMessageLoadedFromDatabase->getReceivedAt()->format('Y-m-d H:i:s')
+            $storedMessage->getWaitingTime(),
+            $storedMessageLoadedFromDatabase->getWaitingTime()
         );
 
         $this->assertSame(

@@ -18,23 +18,23 @@ final class StoredMessage
     private $messageClass;
     private $receiverName;
     private $dispatchedAt;
-    private $receivedAt;
+    private $waitingTime;
     private $handledAt;
     private $failedAt;
 
-    public function __construct(string $messageUid, string $messageClass, \DateTimeImmutable $dispatchedAt, int $id = null, ?\DateTimeImmutable $receivedAt = null, ?\DateTimeImmutable $handledAt = null, ?\DateTimeImmutable $failedAt = null, ?string $receiverName = null)
+    public function __construct(string $messageUid, string $messageClass, \DateTimeImmutable $dispatchedAt, int $id = null, float $waitingTime = null, ?\DateTimeImmutable $handledAt = null, ?\DateTimeImmutable $failedAt = null, ?string $receiverName = null)
     {
         $this->id = $id;
         $this->messageUid = $messageUid;
         $this->messageClass = $messageClass;
         $this->dispatchedAt = $dispatchedAt;
 
-        if (null !== $receivedAt) {
-            $this->receivedAt = $receivedAt;
+        if (null !== $waitingTime) {
+            $this->waitingTime = $waitingTime;
             $this->handledAt = $handledAt;
             $this->failedAt = $failedAt;
         } elseif (null !== $handledAt || null !== $failedAt) {
-            throw new \RuntimeException('"receivedAt" could not be null if "handledAt" or "failedAt" is not null');
+            throw new \RuntimeException('"waitingTime" could not be null if "handledAt" or "failedAt" is not null');
         }
 
         $this->receiverName = $receiverName;
@@ -52,8 +52,7 @@ final class StoredMessage
         return new self(
             $monitorIdStamp->getId(),
             \get_class($envelope->getMessage()),
-            \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true)),
-            null
+            \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true))
         );
     }
 
@@ -85,14 +84,15 @@ final class StoredMessage
         return $this->dispatchedAt;
     }
 
-    public function getReceivedAt(): ?\DateTimeImmutable
+    public function updateWaitingTime(): void
     {
-        return $this->receivedAt;
+        $now = \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true));
+        $this->waitingTime = round((float) $now->format('U.v') - (float) $this->dispatchedAt->format('U.v'), 3);
     }
 
-    public function setReceivedAt(\DateTimeImmutable $receivedAt): void
+    public function getWaitingTime(): ?float
     {
-        $this->receivedAt = $receivedAt;
+        return $this->waitingTime;
     }
 
     public function getHandledAt(): ?\DateTimeImmutable

@@ -33,7 +33,7 @@ final class UpdateStoredMessageListener implements EventSubscriberInterface
             return;
         }
 
-        $storedMessage->setReceivedAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
+        $storedMessage->updateWaitingTime();
         $storedMessage->setReceiverName($event->getReceiverName());
 
         $this->doctrineConnection->updateMessage($storedMessage);

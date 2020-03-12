@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SymfonyCasts\MessengerMonitorBundle\Tests\FunctionalTests;
 
+/** @group functional */
 final class RejectFailedMessageControllerTest extends AbstractFunctionalTests
 {
     public function testRejectFailedMessageSuccess(): void

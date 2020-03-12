@@ -62,21 +62,20 @@ class Connection
         $this->executeQuery(
             $this->driverConnection->createQueryBuilder()
                 ->update($this->tableName)
-                ->set('received_at', ':received_at')
+                ->set('waiting_time', ':waiting_time')
                 ->set('receiver_name', ':receiver_name')
                 ->set('handled_at', ':handled_at')
                 ->set('failed_at', ':failed_at')
                 ->where('id = :id')
                 ->getSQL(),
             [
-                'received_at' => $storedMessage->getReceivedAt(),
+                'waiting_time' => $storedMessage->getWaitingTime(),
                 'handled_at' => $storedMessage->getHandledAt(),
                 'failed_at' => $storedMessage->getFailedAt(),
                 'receiver_name' => $storedMessage->getReceiverName(),
                 'id' => $storedMessage->getId(),
             ],
             [
-                'received_at' => Types::DATETIME_IMMUTABLE,
                 'handled_at' => Types::DATETIME_IMMUTABLE,
                 'failed_at' => Types::DATETIME_IMMUTABLE,
             ]
@@ -100,17 +99,12 @@ class Connection
             return null;
         }
 
-        $dispatchedAt = \DateTimeImmutable::createFromFormat('U.u', $row['dispatched_at']);
-        if (false === $dispatchedAt) {
-            $dispatchedAt = \DateTimeImmutable::createFromFormat('U', $row['dispatched_at']);
-        }
-
         return new StoredMessage(
             $row['message_uid'],
             $row['class'],
-            $dispatchedAt,
+            \DateTimeImmutable::createFromFormat('U.u', sprintf('%.6f', $row['dispatched_at'])),
             (int) $row['id'],
-            null !== $row['received_at'] ? new \DateTimeImmutable($row['received_at']) : null,
+            null !== $row['waiting_time'] ? (float) $row['waiting_time'] : null,
             null !== $row['handled_at'] ? new \DateTimeImmutable($row['handled_at']) : null,
             null !== $row['failed_at'] ? new \DateTimeImmutable($row['failed_at']) : null,
             $row['receiver_name'] ?? null
@@ -122,7 +116,7 @@ class Connection
         $statement = $this->executeQuery(
             $this->driverConnection->createQueryBuilder()
                 ->select('count(id) as countMessagesOnPeriod, class')
-                ->addSelect(sprintf('AVG(%s) AS averageWaitingTime', $this->SQLDriver->getDateDiffInSecondsExpression('received_at', 'dispatched_at')))
+                ->addSelect('AVG(waiting_time) AS averageWaitingTime')
                 ->addSelect(sprintf('AVG(%s) AS averageHandlingTime', $this->SQLDriver->getDateDiffInSecondsExpression('handled_at', 'received_at')))
                 ->from($this->tableName)
                 ->where('handled_at >= :from_date')
@@ -180,7 +174,7 @@ class Connection
         $table->addColumn('message_uid', Types::GUID)->setNotnull(true);
         $table->addColumn('class', Types::STRING)->setLength(255)->setNotnull(true);
         $table->addColumn('dispatched_at', Types::FLOAT)->setNotnull(true);
-        $table->addColumn('received_at', Types::DATETIME_IMMUTABLE)->setNotnull(false);
+        $table->addColumn('waiting_time', Types::FLOAT)->setNotnull(false);
         $table->addColumn('handled_at', Types::DATETIME_IMMUTABLE)->setNotnull(false);
         $table->addColumn('failed_at', Types::DATETIME_IMMUTABLE)->setNotnull(false);
         $table->addColumn('receiver_name', Types::STRING)->setLength(255)->setNotnull(false);
