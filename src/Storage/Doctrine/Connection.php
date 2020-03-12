@@ -50,10 +50,7 @@ class Connection
             [
                 'message_uid' => $storedMessage->getMessageUid(),
                 'class' => $storedMessage->getMessageClass(),
-                'dispatched_at' => $storedMessage->getDispatchedAt(),
-            ],
-            [
-                'dispatched_at' => Types::DATETIME_IMMUTABLE,
+                'dispatched_at' => (float) $storedMessage->getDispatchedAt()->format('U.u'),
             ]
         );
 
@@ -103,10 +100,15 @@ class Connection
             return null;
         }
 
+        $dispatchedAt = \DateTimeImmutable::createFromFormat('U.u', $row['dispatched_at']);
+        if (false === $dispatchedAt) {
+            $dispatchedAt = \DateTimeImmutable::createFromFormat('U', $row['dispatched_at']);
+        }
+
         return new StoredMessage(
             $row['message_uid'],
             $row['class'],
-            new \DateTimeImmutable($row['dispatched_at']),
+            $dispatchedAt,
             (int) $row['id'],
             null !== $row['received_at'] ? new \DateTimeImmutable($row['received_at']) : null,
             null !== $row['handled_at'] ? new \DateTimeImmutable($row['handled_at']) : null,
@@ -177,7 +179,7 @@ class Connection
         $table->addColumn('id', Types::INTEGER)->setNotnull(true)->setAutoincrement(true);
         $table->addColumn('message_uid', Types::GUID)->setNotnull(true);
         $table->addColumn('class', Types::STRING)->setLength(255)->setNotnull(true);
-        $table->addColumn('dispatched_at', Types::DATETIME_IMMUTABLE)->setNotnull(true);
+        $table->addColumn('dispatched_at', Types::FLOAT)->setNotnull(true);
         $table->addColumn('received_at', Types::DATETIME_IMMUTABLE)->setNotnull(false);
         $table->addColumn('handled_at', Types::DATETIME_IMMUTABLE)->setNotnull(false);
         $table->addColumn('failed_at', Types::DATETIME_IMMUTABLE)->setNotnull(false);

@@ -52,7 +52,7 @@ final class StoredMessage
         return new self(
             $monitorIdStamp->getId(),
             \get_class($envelope->getMessage()),
-            \DateTimeImmutable::createFromFormat('U', (string) time()),
+            \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true)),
             null
         );
     }
