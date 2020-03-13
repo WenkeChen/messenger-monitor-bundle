@@ -43,6 +43,7 @@ final class StoredMessage
             throw new MessengerIdStampMissingException();
         }
 
+        /** @psalm-suppress PossiblyFalseArgument */
         return new self(
             $monitorIdStamp->getId(),
             \get_class($envelope->getMessage()),
@@ -86,6 +87,7 @@ final class StoredMessage
     public function updateWaitingTime(): void
     {
         $now = \DateTimeImmutable::createFromFormat('0.u00 U', microtime());
+        /** @psalm-suppress PossiblyFalseReference */
         $this->waitingTime = round((float) $now->format('U.u') - (float) $this->dispatchedAt->format('U.u'), 6);
     }
 
@@ -123,6 +125,7 @@ final class StoredMessage
     {
         $now = \DateTimeImmutable::createFromFormat('0.u00 U', microtime());
 
+        /** @psalm-suppress PossiblyFalseReference */
         return round(
             (float) $now->format('U.u')
             - (float) $this->dispatchedAt->format('U.u')

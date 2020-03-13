@@ -9,8 +9,8 @@ use Symfony\Bridge\PhpUnit\ClockMock;
 use SymfonyCasts\MessengerMonitorBundle\Statistics\MetricsPerMessageType;
 use SymfonyCasts\MessengerMonitorBundle\Statistics\Statistics;
 use SymfonyCasts\MessengerMonitorBundle\Storage\Doctrine\StoredMessage;
+use SymfonyCasts\MessengerMonitorBundle\Tests\Fixtures\TestableMessage;
 use SymfonyCasts\MessengerMonitorBundle\Tests\IntegrationTests\AbstractDoctrineIntegrationTests;
-use SymfonyCasts\MessengerMonitorBundle\Tests\TestableMessage;
 
 final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
 {

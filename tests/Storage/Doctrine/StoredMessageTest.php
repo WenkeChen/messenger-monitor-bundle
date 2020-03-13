@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\Envelope;
 use SymfonyCasts\MessengerMonitorBundle\Stamp\MonitorIdStamp;
 use SymfonyCasts\MessengerMonitorBundle\Storage\Doctrine\Exception\MessengerIdStampMissingException;
 use SymfonyCasts\MessengerMonitorBundle\Storage\Doctrine\StoredMessage;
-use SymfonyCasts\MessengerMonitorBundle\Tests\TestableMessage;
+use SymfonyCasts\MessengerMonitorBundle\Tests\Fixtures\TestableMessage;
 
 /** @group time-sensitive */
 final class StoredMessageTest extends TestCase

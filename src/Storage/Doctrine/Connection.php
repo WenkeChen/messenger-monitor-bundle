@@ -92,6 +92,7 @@ class Connection
             return null;
         }
 
+        /** @psalm-suppress PossiblyFalseArgument */
         return new StoredMessage(
             $row['message_uid'],
             $row['class'],
@@ -118,7 +119,7 @@ class Connection
                 ->getSQL(),
             [
                 'from_date' => (float) $fromDate->format('U'),
-                'to_date' => (float) $toDate->format('U')
+                'to_date' => (float) $toDate->format('U'),
             ]
         );
 

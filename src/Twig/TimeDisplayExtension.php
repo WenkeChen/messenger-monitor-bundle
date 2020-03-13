@@ -19,7 +19,7 @@ final class TimeDisplayExtension extends AbstractExtension
     public function formatTime(?float $seconds): string
     {
         if (null === $seconds) {
-            return 'n/a';
+            return '-';
         }
 
         if ($seconds < 0.001) {

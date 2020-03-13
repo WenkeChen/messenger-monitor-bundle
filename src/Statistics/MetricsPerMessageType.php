@@ -41,14 +41,14 @@ final class MetricsPerMessageType
         return round($this->getMessagesCount() / $this->getNbHoursInPeriod(), 2);
     }
 
-    public function getAverageWaitingTime(): float
+    public function getAverageWaitingTime(): ?float
     {
-        return round($this->averageWaitingTime, 6);
+        return null !== $this->averageWaitingTime ? round($this->averageWaitingTime, 6) : null;
     }
 
-    public function getAverageHandlingTime(): float
+    public function getAverageHandlingTime(): ?float
     {
-        return round($this->averageHandlingTime, 6);
+        return null !== $this->averageHandlingTime ? round($this->averageHandlingTime, 6) : null;
     }
 
     private function getNbHoursInPeriod(): float
