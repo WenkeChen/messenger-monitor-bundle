@@ -41,22 +41,16 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
 
         $this->doctrineConnection->saveMessage($storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.123')));
         $storedMessage->updateWaitingTime();
-        $storedMessage->setHandledAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
+        $storedMessage->updateHandlingTime();
         $storedMessage->setFailedAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
         $storedMessage->setReceiverName('receiver_name');
         $this->doctrineConnection->updateMessage($storedMessage);
 
         $storedMessageLoadedFromDatabase = $this->doctrineConnection->findMessage('message_uid');
 
-        $this->assertSame(
-            $storedMessage->getWaitingTime(),
-            $storedMessageLoadedFromDatabase->getWaitingTime()
-        );
+        $this->assertSame($storedMessage->getWaitingTime(), $storedMessageLoadedFromDatabase->getWaitingTime());
 
-        $this->assertSame(
-            $storedMessage->getHandledAt()->format('Y-m-d H:i:s'),
-            $storedMessageLoadedFromDatabase->getHandledAt()->format('Y-m-d H:i:s')
-        );
+        $this->assertSame($storedMessage->getHandlingTime(), $storedMessageLoadedFromDatabase->getHandlingTime());
 
         $this->assertSame(
             $storedMessage->getFailedAt()->format('Y-m-d H:i:s'),

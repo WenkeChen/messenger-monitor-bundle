@@ -47,7 +47,7 @@ final class UpdateStoredMessageListener implements EventSubscriberInterface
             return;
         }
 
-        $storedMessage->setHandledAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
+        $storedMessage->updateHandlingTime();
         $this->doctrineConnection->updateMessage($storedMessage);
     }
 

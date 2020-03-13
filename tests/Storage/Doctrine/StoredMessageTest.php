@@ -18,7 +18,7 @@ final class StoredMessageTest extends TestCase
     public function testStoredMessage(): void
     {
         $storedMessage = new StoredMessage(
-            'message_uid', TestableMessage::class, $dispatchedAt = new \DateTimeImmutable(), 1, $waitingTime = 0.1, $handledAt = new \DateTimeImmutable(), $failedAt = new \DateTimeImmutable(), $receiverName = 'receiver_name'
+            'message_uid', TestableMessage::class, $dispatchedAt = new \DateTimeImmutable(), 1, $waitingTime = 0.1, $handlingTime = 0.2, $failedAt = new \DateTimeImmutable(), $receiverName = 'receiver_name'
         );
 
         $this->assertSame(1, $storedMessage->getId());
@@ -26,7 +26,7 @@ final class StoredMessageTest extends TestCase
         $this->assertSame(TestableMessage::class, $storedMessage->getMessageClass());
         $this->assertSame($dispatchedAt, $storedMessage->getDispatchedAt());
         $this->assertSame($waitingTime, $storedMessage->getWaitingTime());
-        $this->assertSame($handledAt, $storedMessage->getHandledAt());
+        $this->assertSame($handlingTime, $storedMessage->getHandlingTime());
         $this->assertSame($failedAt, $storedMessage->getFailedAt());
         $this->assertSame($receiverName, $storedMessage->getReceiverName());
     }
@@ -58,5 +58,16 @@ final class StoredMessageTest extends TestCase
 
         $storedMessage->updateWaitingTime();
         $this->assertSame(1.123, $storedMessage->getWaitingTime());
+    }
+
+    public function testUpdateHandlingTime(): void
+    {
+        ClockMock::register(StoredMessage::class);
+        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:02.123'))->format('U.u'));
+
+        $storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.000'), 1, 1.0);
+
+        $storedMessage->updateHandlingTime();
+        $this->assertSame(1.123, $storedMessage->getHandlingTime());
     }
 }

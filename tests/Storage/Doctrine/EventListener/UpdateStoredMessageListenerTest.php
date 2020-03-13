@@ -78,7 +78,7 @@ final class UpdateStoredMessageListenerTest extends TestCase
             ->with($storedMessage);
 
         $listener->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'receiver-name'));
-        $this->assertNotNull($storedMessage->getHandledAt());
+        $this->assertNotNull($storedMessage->getHandlingTime());
     }
 
     public function testUpdateOnMessageHandledDoesNotUpdateIfNoMessageFound(): void
