@@ -56,7 +56,6 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
 
     public function testGetStatistics(): void
     {
-        $this->markTestSkipped('Skipped until stats are fixed.');
         $statistics = $this->doctrineConnection->getStatistics($fromDate = new \DateTimeImmutable(), $toDate = new \DateTimeImmutable());
         $this->assertEquals(new Statistics($fromDate, $toDate), $statistics);
 
@@ -65,8 +64,8 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
         $statistics = $this->doctrineConnection->getStatistics($fromDate = new \DateTimeImmutable('1 hour ago'), $toDate = new \DateTimeImmutable());
 
         $expectedStatistics = new Statistics($fromDate, $toDate);
-        $expectedStatistics->add(new MetricsPerMessageType($fromDate, $toDate, TestableMessage::class, 2, 120.0, 120.0));
-        $expectedStatistics->add(new MetricsPerMessageType($fromDate, $toDate, 'Another'.TestableMessage::class, 1, 60.0, 60.0));
+        $expectedStatistics->add(new MetricsPerMessageType($fromDate, $toDate, TestableMessage::class, 2, 0.2, 0.3));
+        $expectedStatistics->add(new MetricsPerMessageType($fromDate, $toDate, 'Another'.TestableMessage::class, 2, 0.1, 0.2));
 
         $this->assertEquals($expectedStatistics, $statistics);
     }
@@ -82,8 +81,8 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
                 'message_uid' => 'message_uid_1',
                 'class' => TestableMessage::class,
                 'dispatched_at' => (new \DateTimeImmutable('3 minutes ago'))->format('U.u'),
-                'received_at' => (new \DateTimeImmutable('2 minutes ago'))->format('Y-m-d H:i:s'),
-                'handled_at' => (new \DateTimeImmutable('1 minute ago'))->format('Y-m-d H:i:s'),
+                'waiting_time' => 0.1,
+                'handling_time' => 0.2,
             ]
         );
 
@@ -93,8 +92,8 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
                 'message_uid' => 'message_uid_2',
                 'class' => TestableMessage::class,
                 'dispatched_at' => (new \DateTimeImmutable('10 minutes ago'))->format('U.u'),
-                'received_at' => (new \DateTimeImmutable('7 minutes ago'))->format('Y-m-d H:i:s'),
-                'handled_at' => (new \DateTimeImmutable('4 minute ago'))->format('Y-m-d H:i:s'),
+                'waiting_time' => 0.3,
+                'handling_time' => 0.4,
             ]
         );
 
@@ -104,20 +103,32 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
                 'message_uid' => 'message_uid_3',
                 'class' => 'Another'.TestableMessage::class,
                 'dispatched_at' => (new \DateTimeImmutable('3 minutes ago'))->format('U.u'),
-                'received_at' => (new \DateTimeImmutable('2 minutes ago'))->format('Y-m-d H:i:s'),
-                'handled_at' => (new \DateTimeImmutable('1 minute ago'))->format('Y-m-d H:i:s'),
+                'waiting_time' => 0.1,
+                'handling_time' => 0.2,
             ]
         );
 
-        // should not be part of statistics
+        // this one should only affect waiting_time metric
+        // proves that "null" values are not assumed as "0" in AVG() sql function
+        $connection->insert(
+            'messenger_monitor',
+            [
+                'message_uid' => 'message_uid_3',
+                'class' => 'Another'.TestableMessage::class,
+                'dispatched_at' => (new \DateTimeImmutable('3 minutes ago'))->format('U.u'),
+                'waiting_time' => 0.1,
+            ]
+        );
+
+        // should not be part of statistics because it is too old
         $connection->insert(
             'messenger_monitor',
             [
                 'message_uid' => 'message_uid_2',
                 'class' => TestableMessage::class,
                 'dispatched_at' => (new \DateTimeImmutable('6 hours ago'))->format('U.u'),
-                'received_at' => (new \DateTimeImmutable('6 hours ago'))->format('Y-m-d H:i:s'),
-                'handled_at' => (new \DateTimeImmutable('6 hours ago'))->format('Y-m-d H:i:s'),
+                'waiting_time' => 1,
+                'handling_time' => 2,
             ]
         );
     }

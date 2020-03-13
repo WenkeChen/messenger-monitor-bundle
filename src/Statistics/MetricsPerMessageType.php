@@ -16,7 +16,7 @@ final class MetricsPerMessageType
     private $averageWaitingTime;
     private $averageHandlingTime;
 
-    public function __construct(\DateTimeImmutable $fromDate, \DateTimeImmutable $toDate, string $class, int $messagesCountOnPeriod, float $averageWaitingTime, float $averageHandlingTime)
+    public function __construct(\DateTimeImmutable $fromDate, \DateTimeImmutable $toDate, string $class, int $messagesCountOnPeriod, ?float $averageWaitingTime, ?float $averageHandlingTime)
     {
         $this->fromDate = $fromDate;
         $this->toDate = $toDate;
@@ -43,12 +43,12 @@ final class MetricsPerMessageType
 
     public function getAverageWaitingTime(): float
     {
-        return round($this->averageWaitingTime, 2);
+        return round($this->averageWaitingTime, 6);
     }
 
     public function getAverageHandlingTime(): float
     {
-        return round($this->averageHandlingTime, 2);
+        return round($this->averageHandlingTime, 6);
     }
 
     private function getNbHoursInPeriod(): float

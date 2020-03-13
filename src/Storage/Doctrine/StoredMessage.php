@@ -46,7 +46,7 @@ final class StoredMessage
         return new self(
             $monitorIdStamp->getId(),
             \get_class($envelope->getMessage()),
-            \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true))
+            \DateTimeImmutable::createFromFormat('0.u00 U', microtime())
         );
     }
 
@@ -85,8 +85,8 @@ final class StoredMessage
 
     public function updateWaitingTime(): void
     {
-        $now = \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true));
-        $this->waitingTime = round((float) $now->format('U.v') - (float) $this->dispatchedAt->format('U.v'), 3);
+        $now = \DateTimeImmutable::createFromFormat('0.u00 U', microtime());
+        $this->waitingTime = round((float) $now->format('U.u') - (float) $this->dispatchedAt->format('U.u'), 6);
     }
 
     public function setReceiverName(string $receiverName): void
@@ -121,13 +121,13 @@ final class StoredMessage
 
     private function computePassedTimeSinceReceived(): float
     {
-        $now = \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true));
+        $now = \DateTimeImmutable::createFromFormat('0.u00 U', microtime());
 
         return round(
-            (float) $now->format('U.v')
-            - (float) $this->dispatchedAt->format('U.v')
+            (float) $now->format('U.u')
+            - (float) $this->dispatchedAt->format('U.u')
             - $this->waitingTime,
-            3
+            6
         );
     }
 }

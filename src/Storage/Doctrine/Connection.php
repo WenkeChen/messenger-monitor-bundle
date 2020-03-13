@@ -116,8 +116,10 @@ class Connection
                 ->andWhere('dispatched_at <= :to_date')
                 ->groupBy('class')
                 ->getSQL(),
-            ['from_date' => $fromDate, 'to_date' => $toDate],
-            ['from_date' => Types::DATETIME_IMMUTABLE, 'to_date' => Types::DATETIME_IMMUTABLE]
+            [
+                'from_date' => (float) $fromDate->format('U'),
+                'to_date' => (float) $toDate->format('U')
+            ]
         );
 
         $statistics = new Statistics($fromDate, $toDate);

@@ -12,6 +12,7 @@ use SymfonyCasts\MessengerMonitorBundle\Storage\Doctrine\Exception\MessengerIdSt
 use SymfonyCasts\MessengerMonitorBundle\Storage\Doctrine\StoredMessage;
 use SymfonyCasts\MessengerMonitorBundle\Tests\TestableMessage;
 
+/** @group time-sensitive */
 final class StoredMessageTest extends TestCase
 {
     public function testStoredMessage(): void
@@ -58,33 +59,33 @@ final class StoredMessageTest extends TestCase
     public function testUpdateWaitingTime(): void
     {
         ClockMock::register(StoredMessage::class);
-        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:01.123'))->format('U.u'));
+        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:01.123456'))->format('U.u'));
 
         $storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.000'));
 
         $storedMessage->updateWaitingTime();
-        $this->assertSame(1.123, $storedMessage->getWaitingTime());
+        $this->assertSame(1.123456, $storedMessage->getWaitingTime());
     }
 
     public function testUpdateHandlingTime(): void
     {
         ClockMock::register(StoredMessage::class);
-        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:02.123'))->format('U.u'));
+        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:02.123456'))->format('U.u'));
 
         $storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.000'), 1, 1.0);
 
         $storedMessage->updateHandlingTime();
-        $this->assertSame(1.123, $storedMessage->getHandlingTime());
+        $this->assertSame(1.123456, $storedMessage->getHandlingTime());
     }
 
     public function testUpdateFailingTime(): void
     {
         ClockMock::register(StoredMessage::class);
-        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:02.123'))->format('U.u'));
+        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:02.123456'))->format('U.u'));
 
         $storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.000'), 1, 1.0);
 
         $storedMessage->updateFailingTime();
-        $this->assertSame(1.123, $storedMessage->getFailingTime());
+        $this->assertSame(1.123456, $storedMessage->getFailingTime());
     }
 }
