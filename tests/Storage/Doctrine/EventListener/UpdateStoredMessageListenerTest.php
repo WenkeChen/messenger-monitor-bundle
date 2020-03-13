@@ -119,7 +119,7 @@ final class UpdateStoredMessageListenerTest extends TestCase
             ->with($storedMessage);
 
         $listener->onMessageFailed(new WorkerMessageFailedEvent($envelope, 'receiver-name', new \Exception()));
-        $this->assertNotNull($storedMessage->getFailedAt());
+        $this->assertNotNull($storedMessage->getFailingTime());
     }
 
     public function testUpdateOnMessageFailedDoesNotUpdateIfNoMessageFound(): void

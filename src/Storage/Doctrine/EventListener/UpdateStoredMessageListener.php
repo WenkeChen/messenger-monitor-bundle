@@ -59,7 +59,7 @@ final class UpdateStoredMessageListener implements EventSubscriberInterface
             return;
         }
 
-        $storedMessage->setFailedAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
+        $storedMessage->updateFailingTime(\DateTimeImmutable::createFromFormat('U', (string) time()));
         $this->doctrineConnection->updateMessage($storedMessage);
     }
 

@@ -41,23 +41,17 @@ final class DoctrineConnectionTest extends AbstractDoctrineIntegrationTests
 
         $this->doctrineConnection->saveMessage($storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.123')));
         $storedMessage->updateWaitingTime();
-        $storedMessage->updateHandlingTime();
-        $storedMessage->setFailedAt(\DateTimeImmutable::createFromFormat('U', (string) time()));
         $storedMessage->setReceiverName('receiver_name');
+        $storedMessage->updateHandlingTime();
+        $storedMessage->updateFailingTime();
         $this->doctrineConnection->updateMessage($storedMessage);
 
         $storedMessageLoadedFromDatabase = $this->doctrineConnection->findMessage('message_uid');
 
         $this->assertSame($storedMessage->getWaitingTime(), $storedMessageLoadedFromDatabase->getWaitingTime());
-
-        $this->assertSame($storedMessage->getHandlingTime(), $storedMessageLoadedFromDatabase->getHandlingTime());
-
-        $this->assertSame(
-            $storedMessage->getFailedAt()->format('Y-m-d H:i:s'),
-            $storedMessageLoadedFromDatabase->getFailedAt()->format('Y-m-d H:i:s')
-        );
-
         $this->assertSame($storedMessage->getReceiverName(), $storedMessageLoadedFromDatabase->getReceiverName());
+        $this->assertSame($storedMessage->getHandlingTime(), $storedMessageLoadedFromDatabase->getHandlingTime());
+        $this->assertSame($storedMessage->getFailingTime(), $storedMessageLoadedFromDatabase->getFailingTime());
     }
 
     public function testGetStatistics(): void

@@ -20,9 +20,9 @@ final class StoredMessage
     private $dispatchedAt;
     private $waitingTime;
     private $handlingTime;
-    private $failedAt;
+    private $failingTime;
 
-    public function __construct(string $messageUid, string $messageClass, \DateTimeImmutable $dispatchedAt, int $id = null, ?float $waitingTime = null, ?float $handlingTime = null, ?\DateTimeImmutable $failedAt = null, ?string $receiverName = null)
+    public function __construct(string $messageUid, string $messageClass, \DateTimeImmutable $dispatchedAt, int $id = null, ?float $waitingTime = null, ?string $receiverName = null, ?float $handlingTime = null, ?float $failingTime = null)
     {
         $this->id = $id;
         $this->messageUid = $messageUid;
@@ -30,7 +30,7 @@ final class StoredMessage
         $this->dispatchedAt = $dispatchedAt;
         $this->waitingTime = $waitingTime;
         $this->handlingTime = $handlingTime;
-        $this->failedAt = $failedAt;
+        $this->failingTime = $failingTime;
         $this->receiverName = $receiverName;
     }
 
@@ -89,27 +89,6 @@ final class StoredMessage
         $this->waitingTime = round((float) $now->format('U.v') - (float) $this->dispatchedAt->format('U.v'), 3);
     }
 
-    public function getHandlingTime(): ?float
-    {
-        return $this->handlingTime;
-    }
-
-    public function updateHandlingTime(): void
-    {
-        $now = \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true));
-        $this->handlingTime = round((float) $now->format('U.v') - (float) $this->dispatchedAt->format('U.v') - $this->waitingTime, 3);
-    }
-
-    public function getFailedAt(): ?\DateTimeImmutable
-    {
-        return $this->failedAt;
-    }
-
-    public function setFailedAt(\DateTimeImmutable $failedAt): void
-    {
-        $this->failedAt = $failedAt;
-    }
-
     public function setReceiverName(string $receiverName): void
     {
         $this->receiverName = $receiverName;
@@ -118,5 +97,37 @@ final class StoredMessage
     public function getReceiverName(): ?string
     {
         return $this->receiverName;
+    }
+
+    public function getHandlingTime(): ?float
+    {
+        return $this->handlingTime;
+    }
+
+    public function updateHandlingTime(): void
+    {
+        $this->handlingTime = $this->computePassedTimeSinceReceived();
+    }
+
+    public function getFailingTime(): ?float
+    {
+        return $this->failingTime;
+    }
+
+    public function updateFailingTime(): void
+    {
+        $this->failingTime = $this->computePassedTimeSinceReceived();
+    }
+
+    private function computePassedTimeSinceReceived(): float
+    {
+        $now = \DateTimeImmutable::createFromFormat('U.u', (string) microtime(true));
+
+        return round(
+            (float) $now->format('U.v')
+            - (float) $this->dispatchedAt->format('U.v')
+            - $this->waitingTime,
+            3
+        );
     }
 }

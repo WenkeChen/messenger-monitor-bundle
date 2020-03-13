@@ -62,18 +62,15 @@ class Connection
                 ->set('waiting_time', ':waiting_time')
                 ->set('receiver_name', ':receiver_name')
                 ->set('handling_time', ':handling_time')
-                ->set('failed_at', ':failed_at')
+                ->set('failing_time', ':failing_time')
                 ->where('id = :id')
                 ->getSQL(),
             [
                 'waiting_time' => $storedMessage->getWaitingTime(),
-                'handling_time' => $storedMessage->getHandlingTime(),
-                'failed_at' => $storedMessage->getFailedAt(),
                 'receiver_name' => $storedMessage->getReceiverName(),
+                'handling_time' => $storedMessage->getHandlingTime(),
+                'failing_time' => $storedMessage->getFailingTime(),
                 'id' => $storedMessage->getId(),
-            ],
-            [
-                'failed_at' => Types::DATETIME_IMMUTABLE,
             ]
         );
     }
@@ -101,9 +98,9 @@ class Connection
             \DateTimeImmutable::createFromFormat('U.u', sprintf('%.6f', $row['dispatched_at'])),
             (int) $row['id'],
             null !== $row['waiting_time'] ? (float) $row['waiting_time'] : null,
+            $row['receiver_name'] ?? null,
             null !== $row['handling_time'] ? (float) $row['handling_time'] : null,
-            null !== $row['failed_at'] ? new \DateTimeImmutable($row['failed_at']) : null,
-            $row['receiver_name'] ?? null
+            null !== $row['failing_time'] ? (float) $row['failing_time'] : null
         );
     }
 
@@ -172,7 +169,7 @@ class Connection
         $table->addColumn('dispatched_at', Types::FLOAT)->setNotnull(true);
         $table->addColumn('waiting_time', Types::FLOAT)->setNotnull(false);
         $table->addColumn('handling_time', Types::FLOAT)->setNotnull(false);
-        $table->addColumn('failed_at', Types::DATETIME_IMMUTABLE)->setNotnull(false);
+        $table->addColumn('failing_time', Types::FLOAT)->setNotnull(false);
         $table->addColumn('receiver_name', Types::STRING)->setLength(255)->setNotnull(false);
         $table->addIndex(['dispatched_at']);
         $table->addIndex(['class']);

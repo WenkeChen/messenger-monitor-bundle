@@ -25,9 +25,7 @@ final class SaveRetriedMessageListener implements EventSubscriberInterface
     {
         $this->doctrineConnection->saveMessage(
             new StoredMessage(
-                $retriedMessageEvent->getMessageUid(),
-                $retriedMessageEvent->getMessageClass(),
-                \DateTimeImmutable::createFromFormat('U', (string) time())
+                $retriedMessageEvent->getMessageUid(), $retriedMessageEvent->getMessageClass(), \DateTimeImmutable::createFromFormat('U', (string) time())
             )
         );
     }
