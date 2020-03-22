@@ -84,11 +84,14 @@ final class StoredMessage
         return $this->waitingTime;
     }
 
-    public function updateWaitingTime(): void
+    /**
+     * @param float $delay The delay in seconds
+     */
+    public function updateWaitingTime(float $delay = 0): void
     {
         $now = \DateTimeImmutable::createFromFormat('0.u00 U', microtime());
         /** @psalm-suppress PossiblyFalseReference */
-        $this->waitingTime = round((float) $now->format('U.u') - (float) $this->dispatchedAt->format('U.u'), 6);
+        $this->waitingTime = round((float) $now->format('U.u') - (float) $this->dispatchedAt->format('U.u'), 6) - $delay;
     }
 
     public function setReceiverName(string $receiverName): void

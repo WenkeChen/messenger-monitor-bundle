@@ -67,6 +67,17 @@ final class StoredMessageTest extends TestCase
         $this->assertSame(1.123456, $storedMessage->getWaitingTime());
     }
 
+    public function testUpdateWaitingTimeWithOffset(): void
+    {
+        ClockMock::register(StoredMessage::class);
+        ClockMock::withClockMock((new \DateTimeImmutable('2020-01-01 00:00:03.123456'))->format('U.u'));
+
+        $storedMessage = new StoredMessage('message_uid', TestableMessage::class, new \DateTimeImmutable('2020-01-01 00:00:00.000'));
+
+        $storedMessage->updateWaitingTime(2);
+        $this->assertSame(1.123456, $storedMessage->getWaitingTime());
+    }
+
     public function testUpdateHandlingTime(): void
     {
         ClockMock::register(StoredMessage::class);

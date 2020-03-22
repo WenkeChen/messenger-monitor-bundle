@@ -24,7 +24,7 @@ final class DashboardControllerTest extends AbstractFunctionalTests
         $this->assertStoredMessageIsInDB($envelope);
 
         $this->handleLastMessageInQueue('queue');
-        $this->testDashboardEmpty();
+        $this->assertDisplayedQueuesOnDashboard(['queue' => 0, 'queue_with_retry' => 0, 'failed' => 0]);
     }
 
     public function testDashboardWithOneFailedMessage(): void

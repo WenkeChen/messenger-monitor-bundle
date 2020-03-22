@@ -11,7 +11,7 @@ final class RetryFailedMessageControllerTest extends AbstractFunctionalTests
 {
     public function testRetryFailedMessage(): void
     {
-        $envelope = $this->dispatchMessage(new FailureMessage());
+        $this->dispatchMessage(new FailureMessage());
         $this->handleLastMessageInQueue('queue');
 
         $this->client->followRedirects();
