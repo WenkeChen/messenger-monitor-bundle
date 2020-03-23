@@ -15,7 +15,7 @@ final class ConfigurationTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage('"doctrine.table_name" and "doctrine.connection" can only be used with doctrine driver.');
 
-        $kernel = new TestKernel(
+        $kernel = TestKernel::withBundleOptions(
             [
                 'driver' => 'redis',
                 'doctrine' => [
@@ -31,7 +31,7 @@ final class ConfigurationTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage('Doctrine connection with name "foo" does not exist');
 
-        $kernel = new TestKernel(
+        $kernel = TestKernel::withBundleOptions(
             [
                 'driver' => 'doctrine',
                 'doctrine' => [

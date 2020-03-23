@@ -30,7 +30,21 @@ abstract class AbstractFunctionalTests extends WebTestCase
 
     protected static function createKernel(array $options = [])
     {
-        return new TestKernel();
+        return TestKernel::withMessengerConfig(
+            [
+                'failure_transport' => 'failed',
+                'transports' => [
+                    'queue' => [
+                        'dsn' => 'doctrine://default?queue_name=queue',
+                        'retry_strategy' => ['max_retries' => 0],
+                    ],
+                    'failed' => 'doctrine://default?queue_name=failed',
+                ],
+                'routing' => [
+                    TestableMessage::class => 'queue',
+                ],
+            ]
+        );
     }
 
     public function setUp(): void
