@@ -6,7 +6,6 @@ namespace SymfonyCasts\MessengerMonitorBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
-use SymfonyCasts\MessengerMonitorBundle\Exception\FailureReceiverDoesNotExistException;
 use SymfonyCasts\MessengerMonitorBundle\Exception\FailureReceiverNotListableException;
 use SymfonyCasts\MessengerMonitorBundle\FailedMessage\FailedMessageRepository;
 use SymfonyCasts\MessengerMonitorBundle\Locator\ReceiverLocator;
@@ -20,8 +19,8 @@ final class DashboardController
 {
     private $twig;
     private $receiverLocator;
-    private $failedMessageRepository;
     private $statisticsProcessor;
+    private $failedMessageRepository;
 
     public const FAILURE_RECEIVER_NOT_LISTABLE = 'failure-receiver-not-listable';
     public const NO_FAILURE_RECEIVER = 'no-failure-receiver';
@@ -29,13 +28,13 @@ final class DashboardController
     public function __construct(
         Environment $twig,
         ReceiverLocator $receiverLocator,
-        FailedMessageRepository $failedMessageRepository,
-        StatisticsProcessorInterface $statisticsProcessor
+        StatisticsProcessorInterface $statisticsProcessor,
+        FailedMessageRepository $failedMessageRepository = null
     ) {
         $this->twig = $twig;
         $this->receiverLocator = $receiverLocator;
-        $this->failedMessageRepository = $failedMessageRepository;
         $this->statisticsProcessor = $statisticsProcessor;
+        $this->failedMessageRepository = $failedMessageRepository;
     }
 
     public function __invoke(): Response
@@ -46,13 +45,16 @@ final class DashboardController
         }
 
         $failedMessages = null;
-        try {
-            $failedMessages = $this->failedMessageRepository->listFailedMessages();
-            $cannotListFailedMessages = null;
-        } catch (FailureReceiverNotListableException $exception) {
-            $cannotListFailedMessages = self::FAILURE_RECEIVER_NOT_LISTABLE;
-        } catch (FailureReceiverDoesNotExistException $exception) {
+
+        if (null === $this->failedMessageRepository) {
             $cannotListFailedMessages = self::NO_FAILURE_RECEIVER;
+        } else {
+            try {
+                $failedMessages = $this->failedMessageRepository->listFailedMessages();
+                $cannotListFailedMessages = null;
+            } catch (FailureReceiverNotListableException $exception) {
+                $cannotListFailedMessages = self::FAILURE_RECEIVER_NOT_LISTABLE;
+            }
         }
 
         return new Response(

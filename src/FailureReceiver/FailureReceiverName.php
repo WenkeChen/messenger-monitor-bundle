@@ -12,12 +12,12 @@ final class FailureReceiverName
 {
     private $failureReceiverName;
 
-    public function __construct(?string $failureReceiverName)
+    public function __construct(string $failureReceiverName)
     {
         $this->failureReceiverName = $failureReceiverName;
     }
 
-    public function toString(): ?string
+    public function toString(): string
     {
         return $this->failureReceiverName;
     }
