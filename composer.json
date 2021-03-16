@@ -1,5 +1,5 @@
 {
-    "name": "symfonycasts/messenger-monitor-bundle",
+    "name": "WenkeChen/messenger-monitor-bundle",
     "description": "Symfony bundle for information about your Messenger queues and transports",
     "type": "symfony-bundle",
     "require": {
