@@ -60,17 +60,3 @@ return [
     SymfonyCasts\MessengerMonitorBundle\SymfonyCastsMessengerMonitorBundle::class => ['all' => true],
 ];
 ```
-
-Usage
-=====
-
-```bin/console messenger:monitor``` to refresh every 3 seconds (default)
-
-```bin/console messenger:monitor -i 0``` to get the information only once
-```bin/console messenger:monitor -i 1``` to refresh every second
-
-Check ```bin/console help messenger:monitor``` for more information
-
-
-
-
