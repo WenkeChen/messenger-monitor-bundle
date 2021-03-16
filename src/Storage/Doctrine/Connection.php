@@ -151,7 +151,10 @@ class Connection
     private function executeQuery(string $sql, array $parameters = [], array $types = []): ResultStatement
     {
         try {
-            $this->driverConnection->connect();
+            if (!$this->driverConnection->ping()) {
+                $this->driverConnection->close();
+                $this->driverConnection->connect();
+            }
             $stmt = $this->driverConnection->executeQuery($sql, $parameters, $types);
         } catch (TableNotFoundException $e) {
             if ($this->driverConnection->isTransactionActive()) {
